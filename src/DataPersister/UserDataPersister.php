@@ -7,7 +7,6 @@ use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use ApiPlatform\Core\DataPersister\ContextAwareDataPersisterInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use App\Controller\PublishController;
 
 /**
  *
@@ -16,16 +15,13 @@ class UserDataPersister implements ContextAwareDataPersisterInterface
 {
     private $_entityManager;
     private $_passwordEncoder;
-    private $_publishController;
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        UserPasswordEncoderInterface $passwordEncoder,
-        PublishController $publishController
+        UserPasswordEncoderInterface $passwordEncoder
     ) {
         $this->_entityManager = $entityManager;
         $this->_passwordEncoder = $passwordEncoder;
-        $this->_publishController = $publishController;
     }
 
     /**
@@ -51,8 +47,6 @@ class UserDataPersister implements ContextAwareDataPersisterInterface
 
             $data->eraseCredentials();
         }
-
-        $this->_publishController;
 
         $this->_entityManager->persist($data);
         $this->_entityManager->flush();

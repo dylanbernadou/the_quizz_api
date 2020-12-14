@@ -19,7 +19,15 @@ use ApiPlatform\Core\Annotation\ApiSubresource;
  * @ApiResource(
  *   mercure=true,
  *   normalizationContext={"groups"={"read"}, "enable_max_depth"="true"},
- *   denormalizationContext={"groups"={"write"}}
+ *   denormalizationContext={"groups"={"write"}},
+ *   collectionOperations={
+ *      "get"={"security"="is_granted('ROLE_USER')"},
+ *      "post"
+ *   },
+ *   itemOperations={
+ *      "get"={"security"="is_granted('ROLE_USER')"},
+ *      "put"
+ *   }
  * )
  */
 class User implements UserInterface
@@ -86,17 +94,18 @@ class User implements UserInterface
     private $themes;
 
     /**
-     * @ORM\OneToMany(targetEntity=Instance::class, mappedBy="creator", orphanRemoval=true)
+     * @ORM\ManyToOne(targetEntity=Instance::class, inversedBy="players")
+     * @ApiSubresource
+     * @MaxDepth(1)
      *
      * @Groups({"read"})
      */
-    private $instances;
+    private $instance;
 
     public function __construct()
     {
         $this->backlogs = new ArrayCollection();
         $this->themes = new ArrayCollection();
-        $this->instances = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -260,32 +269,14 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return Collection|Instance[]
-     */
-    public function getInstances(): Collection
+    public function getInstance(): ?Instance
     {
-        return $this->instances;
+        return $this->instance;
     }
 
-    public function addInstance(Instance $instance): self
+    public function setInstance(?Instance $instance): self
     {
-        if (!$this->instances->contains($instance)) {
-            $this->instances[] = $instance;
-            $instance->setCreator($this);
-        }
-
-        return $this;
-    }
-
-    public function removeInstance(Instance $instance): self
-    {
-        if ($this->instances->removeElement($instance)) {
-            // set the owning side to null (unless already changed)
-            if ($instance->getCreator() === $this) {
-                $instance->setCreator(null);
-            }
-        }
+        $this->instance = $instance;
 
         return $this;
     }

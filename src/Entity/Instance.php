@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *   mercure=true,
+ *   mercure="true",
  *   normalizationContext={"groups"={"read"}, "enable_max_depth"="true"},
  *   denormalizationContext={"groups"={"write"}}
  * )
@@ -41,16 +41,6 @@ class Instance
     private $code;
 
     /**
-     * @ORM\ManyToOne(targetEntity=User::class, inversedBy="instances")
-     * @ORM\JoinColumn(nullable=false)
-     * @ApiSubresource
-     * @MaxDepth(1)
-     *
-     * @Groups({"read"})
-     */
-    private $creator;
-
-    /**
      * @ORM\Column(type="datetime")
      *
      * @Groups({"read"})
@@ -58,7 +48,7 @@ class Instance
     private $creation_datetime;
 
     /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="instances")
+     * @ORM\OneToMany(targetEntity=User::class, mappedBy="instance")
      * @ApiSubresource
      * @MaxDepth(1)
      *
@@ -88,18 +78,6 @@ class Instance
         return $this;
     }
 
-    public function getCreator(): ?User
-    {
-        return $this->creator;
-    }
-
-    public function setCreator(?User $creator): self
-    {
-        $this->creator = $creator;
-
-        return $this;
-    }
-
     public function getCreationDatetime(): ?\DateTimeInterface
     {
         return $this->creation_datetime;
@@ -124,6 +102,7 @@ class Instance
     {
         if (!$this->players->contains($player)) {
             $this->players[] = $player;
+            $player->setInstance($this);
         }
 
         return $this;
@@ -131,7 +110,12 @@ class Instance
 
     public function removePlayer(User $player): self
     {
-        $this->players->removeElement($player);
+        if ($this->players->removeElement($player)) {
+            // set the owning side to null (unless already changed)
+            if ($player->getInstance() === $this) {
+                $player->setInstance(null);
+            }
+        }
 
         return $this;
     }

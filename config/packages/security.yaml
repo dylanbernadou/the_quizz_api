@@ -43,5 +43,6 @@ security:
         - { path: ^/api/games, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/questions, roles: IS_AUTHENTICATED_FULLY }
         - { path: ^/api/instances, roles: IS_AUTHENTICATED_FULLY }
-        - { path: ^/api/users, roles: IS_AUTHENTICATED_FULLY }
+        - { path: ^/api/users, roles: IS_AUTHENTICATED_FULLY, methods: [GET, PUT, DELETE] }
+        - { path: ^/api/users, roles: IS_AUTHENTICATED_ANONYMOUSLY, methods: [POST] }
         - { path: ^/api/themes, roles: IS_AUTHENTICATED_FULLY }

@@ -64,8 +64,6 @@ class InstanceDataPersister implements ContextAwareDataPersisterInterface
             }
 
             $data->setCode($randomString);
-
-            $data->setCreator($this->_security->getUser());
         }
         
 
